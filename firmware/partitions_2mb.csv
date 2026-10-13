@@ -1,0 +1,7 @@
+# Name,   Type, SubType, Offset,   Size
+# for the 2 MB boards (C3 round, S3 e-paper)
+nvs,      data, nvs,     0x9000,   0x6000
+phy_init, data, phy,     0xf000,   0x1000
+factory,  app,  factory, 0x10000,  0x170000
+# walk map + known networks, survives power off (see main/flashstore.c)
+radar,    data, 0x40,    0x180000, 0x80000

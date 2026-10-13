@@ -1,0 +1,2 @@
+# classic ESP32 boards (both CYDs, OWLOSAirQuality): full speed
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
