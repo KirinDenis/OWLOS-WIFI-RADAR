@@ -145,6 +145,12 @@ A few things I found on the way, maybe useful for somebody with same board:
 - Reading the touch once a frame is fine at 16 fps but not at 8: a swipe gave one or two points and came out as a tap. Now it is read between the strips too, every 15 ms or so.
 - Opening the serial port resets the board.
 
+## Flash it from the browser
+
+No toolchain needed: **https://kirindenis.github.io/OWLOS-WIFI-RADAR/** has a button for every board. Chrome or Edge on a computer, a USB cable, pick the port, say yes to erase. It's [ESP Web Tools](https://esphome.github.io/esp-web-tools/) over Web Serial, the same thing ViewOwl's flasher uses.
+
+The firmware there is built by GitHub Actions on every push to `main` (`.github/workflows/pages.yml`): one job per screen in parallel, in Espressif's own ESP-IDF 5.5 docker image, then one job puts the page (`site/`), the screenshots and the binaries together and publishes them on GitHub Pages. The addresses in the flasher manifests come from the build's own `flash_args` (`.github/make-manifests.sh`), so the bootloader goes to 0x1000 on the ESP32 and to 0 on the C3 and S3 without anybody typing it. For a fork: Settings -> Pages -> Source: GitHub Actions, once.
+
 ## Build
 
 Needs ESP-IDF 5.5.

@@ -1,0 +1,5 @@
+# the CI runs on linux: shell scripts must keep LF. cmd wants CRLF in the batch files
+*.sh   text eol=lf
+*.yml  text eol=lf
+*.BAT  text eol=crlf
+*.bat  text eol=crlf

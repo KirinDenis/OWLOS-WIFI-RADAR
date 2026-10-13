@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OWLOS WiFi Radar - flash it from the browser</title>
+<meta name="description" content="Passive 2.4 GHz WiFi radar for ESP32 boards with a screen. Pick your board and flash it straight from Chrome or Edge.">
+<script type="module" src="https://unpkg.com/esp-web-tools@10.2.1/dist/web/install-button.js?module"></script>
+<style>
+  :root {
+    --bg0: #03081a; --bg1: #0a1a36; --panel: #0b2142; --line: #1d4a78;
+    --prim: #5ce1ff; --focus: #eaf7ff; --dim: #8fb2d2; --ok: #7ee2a8; --warn: #ffb848;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg0); }
+  body {
+    margin: 0; color: var(--focus);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(1200px 600px at 50% -10%, var(--bg1), var(--bg0)) fixed;
+  }
+  a { color: var(--prim); }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 32px 16px 48px; }
+  header h1 {
+    margin: 0; font: 700 34px/1.15 "Cascadia Mono", Consolas, monospace; letter-spacing: 1px;
+    color: var(--prim); text-shadow: 0 0 18px rgba(92, 225, 255, .35);
+  }
+  header p { margin: 8px 0 0; color: var(--dim); max-width: 760px; }
+  .how {
+    margin: 26px 0 30px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 10px;
+    background: rgba(11, 33, 66, .55);
+  }
+  .how h2 { margin: 0 0 8px; font-size: 17px; color: var(--prim); }
+  .how ol { margin: 0; padding-left: 20px; color: var(--dim); }
+  .how li { margin: 3px 0; }
+  .how b { color: var(--focus); font-weight: 600; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+  .card {
+    display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px;
+    background: var(--panel); overflow: hidden;
+  }
+  .shot { background: #020611; display: flex; align-items: center; justify-content: center; height: 210px; }
+  .shot img { max-width: 100%; max-height: 210px; display: block; }
+  .body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .card h3 { margin: 0; font-size: 18px; }
+  .spec { color: var(--dim); font-size: 14px; }
+  .tag {
+    align-self: flex-start; font-size: 12px; font-weight: 600; letter-spacing: .5px;
+    padding: 2px 8px; border-radius: 999px; border: 1px solid;
+  }
+  .tag.ok { color: var(--ok); border-color: rgba(126, 226, 168, .5); }
+  .tag.new { color: var(--warn); border-color: rgba(255, 184, 72, .5); }
+  .flash { margin-top: auto; padding-top: 6px; }
+  .flash button {
+    width: 100%; padding: 11px 14px; border: 1px solid var(--prim); border-radius: 8px; cursor: pointer;
+    font: 700 15px "Cascadia Mono", Consolas, monospace; letter-spacing: 1px;
+    color: var(--bg0); background: var(--prim);
+  }
+  .flash button:hover { filter: brightness(1.1); }
+  .nope { font-size: 14px; color: var(--warn); }
+  footer { margin-top: 36px; color: var(--dim); font-size: 14px; }
+  @media (max-width: 480px) { header h1 { font-size: 26px; } .shot { height: 170px; } .shot img { max-height: 170px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>OWLOS WiFi Radar</h1>
+    <p>A passive 2.4 GHz WiFi radar for ESP32 boards with a screen. It only listens, never transmits,
+       and draws every network around as a blip with its name and signal. Walk around the flat and it
+       works out where the routers are. Pick your board below and flash it straight from the browser.</p>
+  </header>
+
+  <section class="how">
+    <h2>How to flash</h2>
+    <ol>
+      <li>Use <b>Chrome or Edge on a computer</b>. Flashing goes over Web Serial, phones and Firefox can't do it.</li>
+      <li>Plug the board in with a USB cable that carries data (some only charge).</li>
+      <li>Press the button of your board, pick its port and say <b>yes to erase</b>: whatever was on the board is replaced.</li>
+      <li>No port in the list? On Windows the CH340 driver may be missing. Won't connect? Hold <b>BOOT</b> while you plug it in.</li>
+      <li>Boards with touch ask you to press 5 crosses once, so the touch knows where the screen is.</li>
+    </ol>
+  </section>
+
+  <section class="grid">
+
+    <article class="card">
+      <div class="shot"><img src="shots/02-listening.png" alt="the radar on the 2.8 inch board" loading="lazy"></div>
+      <div class="body">
+        <h3>2.8" CYD</h3>
+        <span class="tag ok">RUNS ON HARDWARE</span>
+        <div class="spec">"Cheap yellow display", ESP32, ILI9341 320x240, resistive touch. The one it was written on, 15-19 fps.</div>
+        <esp-web-install-button class="flash" manifest="fw/ili9341/manifest.json">
+          <button slot="activate">CONNECT &amp; FLASH</button>
+          <span slot="unsupported" class="nope">This browser can't flash. Use Chrome or Edge on a computer.</span>
+          <span slot="not-allowed" class="nope">Flashing needs the page over https.</span>
+        </esp-web-install-button>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="shot"><img src="shots/st7796/07-target.png" alt="the radar on the 3.5 inch board" loading="lazy"></div>
+      <div class="body">
+        <h3>3.5" CYD</h3>
+        <span class="tag ok">RUNS ON HARDWARE</span>
+        <div class="spec">ESP32, ST7796 480x320, resistive touch on the screen's bus. Bigger radar, about 8 fps.</div>
+        <esp-web-install-button class="flash" manifest="fw/st7796/manifest.json">
+          <button slot="activate">CONNECT &amp; FLASH</button>
+          <span slot="unsupported" class="nope">This browser can't flash. Use Chrome or Edge on a computer.</span>
+          <span slot="not-allowed" class="nope">Flashing needs the page over https.</span>
+        </esp-web-install-button>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="shot"><img src="shots/gc9a01/07-target.png" alt="the radar on the round screen" loading="lazy"></div>
+      <div class="body">
+        <h3>1.28" round</h3>
+        <span class="tag ok">RUNS ON HARDWARE</span>
+        <div class="spec">Elecrow CrowPanel, ESP32-C3, GC9A01 240x240, capacitive touch. Its own round views: swipe for the next screen, tap the top of the glass to go back.</div>
+        <esp-web-install-button class="flash" manifest="fw/gc9a01/manifest.json">
+          <button slot="activate">CONNECT &amp; FLASH</button>
+          <span slot="unsupported" class="nope">This browser can't flash. Use Chrome or Edge on a computer.</span>
+          <span slot="not-allowed" class="nope">Flashing needs the page over https.</span>
+        </esp-web-install-button>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="shot"><img src="shots/epd792/07-target.png" alt="the radar on the wide e-paper" loading="lazy"></div>
+      <div class="body">
+        <h3>5.79" e-paper</h3>
+        <span class="tag ok">RUNS ON HARDWARE</span>
+        <div class="spec">Elecrow CrowPanel, ESP32-S3, 792x272 in 4 greys. A dashboard to read from across the room, changes drawn on top without flashing. MENU = next screen, BACK = next network.</div>
+        <esp-web-install-button class="flash" manifest="fw/epd792/manifest.json">
+          <button slot="activate">CONNECT &amp; FLASH</button>
+          <span slot="unsupported" class="nope">This browser can't flash. Use Chrome or Edge on a computer.</span>
+          <span slot="not-allowed" class="nope">Flashing needs the page over https.</span>
+        </esp-web-install-button>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="shot"><img src="shots/epd400/07-target.png" alt="the radar on the 4.2 inch e-paper" loading="lazy"></div>
+      <div class="body">
+        <h3>4.2" e-paper</h3>
+        <span class="tag new">BUILDS, NOT TRIED ON HARDWARE YET</span>
+        <div class="spec">Elecrow CrowPanel, ESP32-S3, 400x300 in 4 greys. Same as the 5.79" in one column. Pins and panel sequences are the ones ViewOwl runs on it.</div>
+        <esp-web-install-button class="flash" manifest="fw/epd400/manifest.json">
+          <button slot="activate">CONNECT &amp; FLASH</button>
+          <span slot="unsupported" class="nope">This browser can't flash. Use Chrome or Edge on a computer.</span>
+          <span slot="not-allowed" class="nope">Flashing needs the page over https.</span>
+        </esp-web-install-button>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="shot"><img src="shots/st7796/02-listening.png" alt="the radar at 480x320" loading="lazy"></div>
+      <div class="body">
+        <h3>3.5" RPi LCD (ILI9486)</h3>
+        <span class="tag new">BUILDS, NOT TRIED ON HARDWARE YET</span>
+        <div class="spec">Waveshare RPi LCD (A) on the OWLOSAirQuality board, ESP32, 480x320, no touch: BOOT picks the next network, hold it for the 360 turn.</div>
+        <esp-web-install-button class="flash" manifest="fw/ili9486/manifest.json">
+          <button slot="activate">CONNECT &amp; FLASH</button>
+          <span slot="unsupported" class="nope">This browser can't flash. Use Chrome or Edge on a computer.</span>
+          <span slot="not-allowed" class="nope">Flashing needs the page over https.</span>
+        </esp-web-install-button>
+      </div>
+    </article>
+
+  </section>
+
+  <footer>
+    Firmware @VERSION@, built by GitHub Actions from
+    <a href="https://github.com/KirinDenis/OWLOS-WIFI-RADAR">github.com/KirinDenis/OWLOS-WIFI-RADAR</a>,
+    where the code, the README and how it all works are. Flashing is done by
+    <a href="https://esphome.github.io/esp-web-tools/">ESP Web Tools</a>.
+  </footer>
+</div>
+</body>
+</html>
