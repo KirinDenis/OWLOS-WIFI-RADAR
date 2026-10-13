@@ -186,3 +186,7 @@ Small HUD text is the 3x5 pixel font from my old DOS game OWL FLY. Network names
 - Geiger like clicks on the board speaker for hunting without looking at screen
 - compass module, then direction would not depend on how steady you turn
 - maybe 5 GHz one day, but that needs different chip
+
+## License
+
+MIT, see [LICENSE](LICENSE). The fonts and a few panel register tables come from elsewhere and keep their own licenses (OFL, the DejaVu license, Apache 2.0), all of them listed in [THIRD-PARTY.md](THIRD-PARTY.md).
