@@ -2,13 +2,9 @@
 
 Passive WiFi radar for ESP32 boards with a screen. It listens on 2.4 GHz and draws every network around as a blip on old school radar screen - name, signal, and direction when it can figure it out.
 
-It started on the cheap yellow board (ESP32-2432S028R, 2.8" 320x240 with resistive touch) and now runs on all the screens of my ViewOwl project too: 3.5" 480x320, a round 1.28" one and two e-papers. Which one is picked in `core/config.h` (or by the build script, see below).
+It started on the "cheap yellow display" (CYD), a 2.8" 320x240 ESP32 board with resistive touch, and now runs on all the screens of my ViewOwl project too: 3.5" 480x320, a round 1.28" one and two e-papers. Which one is picked in `core/config.h` (or by the build script, see below).
 
 ![radar screen](shots/02-listening.png)
-
-And on the real board (photo, so colors are a bit washed by the camera):
-
-![real board](docs/photo-target.jpg)
 
 ## Idea
 
@@ -61,10 +57,6 @@ List, sortable by signal, name or channel, drag to scroll:
 Spectrum like WiFi analyzer apps draw it, tap a channel to see who sits there:
 
 ![spectrum](shots/10-spectrum.png)
-
-and the same on the real board:
-
-![spectrum on board](docs/photo-spectrum.webp)
 
 HUE button cycles 5 color themes (arctic, phosphor green, amber, crimson, synth). Theme is remembered.
 
@@ -138,8 +130,8 @@ Walk map and the list of networks are saved to the ESP32 internal flash (own 512
 
 Pins for all of them are in `firmware/main/board.h`, the same wiring as in ViewOwl's firmware for each screen. Honest status: the radar runs on the 2.8" and 3.5" CYD, the round one and the 5.79" e-paper. The other two build, look right in the preview, use ViewOwl's proven pins and init sequences, but nobody flashed them yet.
 
-- **ili9341** - ESP32-2432S028R ("cheap yellow display"): classic ESP32, ILI9341 320x240 on SPI, XPT2046 touch on its own pins (CLK 25, MOSI 32, MISO 39, CS 33, IRQ 36). LCD: SCLK 14, MOSI 13, DC 2, CS 15, RST tied high, backlight 21. Runs 15-19 fps, ran 2 hours without a hiccup.
-- **st7796** - ESP32-3248S035, 3.5" ST7796 480x320. The touch is the XPT2046 sitting on the LCD's own SPI bus (CS 33), works fine. About 8 fps: bigger radar to draw, and with no PSRAM only 24 KB heap are left, so the strips are 12 rows.
+- **ili9341** - the 2.8" CYD ("cheap yellow display", in shops as ESP32-2432S028R): classic ESP32, ILI9341 320x240 on SPI, XPT2046 touch on its own pins (CLK 25, MOSI 32, MISO 39, CS 33, IRQ 36). LCD: SCLK 14, MOSI 13, DC 2, CS 15, RST tied high, backlight 21. Runs 15-19 fps, ran 2 hours without a hiccup.
+- **st7796** - the 3.5" CYD (in shops as ESP32-3248S035), ST7796 480x320. The touch is the XPT2046 sitting on the LCD's own SPI bus (CS 33), works fine. About 8 fps: bigger radar to draw, and with no PSRAM only 24 KB heap are left, so the strips are 12 rows.
 - **ili9486** - Waveshare RPi LCD (A) 3.5" on the OWLOSAirQuality board. That board talks to the panel thru shift registers, so every command byte is sent as 16 bits with its own CS pulse, 20 MHz max. No touch, BOOT button only.
 - **gc9a01** - Elecrow CrowPanel 1.28" round, ESP32-C3. Reset and backlight sit on an I2C expander. The touch chip isnt named anywhere I could find, CST816 at 0x15 was a guess and it answered (if nothing answers the radar goes on without touch). About 8 fps, the C3 has one core and no FPU, most of the frame goes to the blips.
 - **epd400 / epd792** - Elecrow CrowPanel e-paper 4.2" and 5.79", ESP32-S3, SSD1683 bit-banged. The 5.79" is two controllers in a cascade, a 4-grey refresh takes 3.3 s there. Its two side keys are MENU (GPIO 2) and BACK (GPIO 1), checked. Dial and key pins are from Elecrow's 5.79 example, the 4.2 is assumed to be the same. The strips are only 8 rows here: 792 x 24 rows was a 76 KB buffer and after wifi there is no free block that big.
