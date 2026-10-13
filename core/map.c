@@ -9,7 +9,6 @@
 #define SIG2     16.0f      // (4 dB)^2, noise of one second's level
 #define VWALK2   1.0f       // (1 m/s)^2, walking speed
 #define HUBER    6.0f       // past 6 dB a miss counts linear (doors, fridges...)
-#define RESTARTS 6
 #define MOTION_MIN 0.35f   // see motion_evidence, picked from walk vs still simulations
 #define PI_F     3.14159265f
 
@@ -284,6 +283,7 @@ static void recenter(map_t *m)
 }
 
 void (*map_yield)(void);
+int map_restarts = 6, map_restart_every = 20;    // see map.h
 
 static void run(map_t *m, int iters, float mu)
 {
@@ -336,12 +336,12 @@ static void load(map_t *m, const sol_t *s)
 void map_solve(map_t *m, int iters)
 {
     if (m->T < 12 || m->n < 3) return;
-    // lots of local minima. every 20 s a few random restarts compete with the
+    // lots of local minima. every 20 s (map_restart_every) a few random restarts compete with the
     // current answer, cheapest one wins
     if (!m->have || (int)m->seconds >= m->next_restart) {
         float best = 1e30f;
         if (m->have) { run(m, 4, 0.5f); best = cost(m); save(m, &s_best); }
-        for (int r = 0; r < RESTARTS; r++) {
+        for (int r = 0; r < map_restarts; r++) {
             randomize(m);
             run(m, 30, 1.0f);
             float c = cost(m);
@@ -349,7 +349,7 @@ void map_solve(map_t *m, int iters)
         }
         load(m, &s_best);
         m->have = 1;
-        m->next_restart = (int)m->seconds + 20;
+        m->next_restart = (int)m->seconds + map_restart_every;
     }
     run(m, iters, 0.5f);
     m->cost = cost(m);

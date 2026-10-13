@@ -284,8 +284,16 @@ void app_main(void)
     /* the solver's restarts are seconds of maths. without a pause the idle task on core 0
      * starved and the task watchdog rebooted the board after a minute or two (full map) */
     map_yield = yield_1ms;
-    xTaskCreatePinnedToCore(mapper_task, "mapper", 6144, NULL, 2, NULL, 0);
-    // one core (C3): the screen never stops drawing, so it goes under the mapper or that one starves
-    if (portNUM_PROCESSORS > 1) xTaskCreatePinnedToCore(ui_task, "ui", 8192, NULL, 5, NULL, 1);
-    else xTaskCreatePinnedToCore(ui_task, "ui", 8192, NULL, 1, NULL, 0);
+    if (portNUM_PROCESSORS > 1) {
+        xTaskCreatePinnedToCore(mapper_task, "mapper", 6144, NULL, 2, NULL, 0);
+        xTaskCreatePinnedToCore(ui_task, "ui", 8192, NULL, 5, NULL, 1);
+    } else {
+        /* one core and no FPU (C3): the restarts took 6-10 s there, with the mapper above
+         * the screen the picture stood still all that time. now the two share the core
+         * (same priority, time sliced), and the restarts are fewer and once a minute */
+        map_restarts = 3;
+        map_restart_every = 60;
+        xTaskCreatePinnedToCore(mapper_task, "mapper", 6144, NULL, 1, NULL, 0);
+        xTaskCreatePinnedToCore(ui_task, "ui", 8192, NULL, 1, NULL, 0);
+    }
 }

@@ -47,11 +47,17 @@ void map_snapshot(map_t *m, const app_t *a);
 // about `iters` rounds of path step + AP steps
 void map_solve(map_t *m, int iters);
 
-/* called after every round of the solver. the restarts every 20 s are ~180 rounds, on a
- * full map (160 snapshots, 16 networks) that is close to 10 s of pure maths. on the ESP32
- * nothing of lower priority ran meanwhile, the idle task starved and the task watchdog
- * rebooted the board. the firmware points this at vTaskDelay(1). NULL = no-op */
+/* called after every round of the solver. the restarts are ~180 rounds: 1.2-1.7 s of
+ * maths on the ESP32 (measured, 160 snapshots, 16 networks), but next to a busy router the
+ * wifi took most of core 0 and it stretched to 10 s. nothing of lower priority ran
+ * meanwhile, the idle task starved and the task watchdog rebooted the board.
+ * the firmware points this at vTaskDelay(1). NULL = no-op */
 extern void (*map_yield)(void);
+
+/* how many fresh starts compete, and how often (s). 6 every 20 s by default. a chip
+ * without an FPU (ESP32-C3) needs 6-10 s for them even with 4 networks, so the firmware
+ * makes it fewer and rarer there */
+extern int map_restarts, map_restart_every;
 // after a 360 turn: match its bearings to the map, fixes left/right and up
 float map_align_turn(map_t *m, const app_t *a);   // agreement 0..1, negative = couldnt try
 // copy solution (published frame) into a->map for the screen
