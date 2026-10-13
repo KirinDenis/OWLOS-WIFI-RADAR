@@ -41,6 +41,7 @@ static saved_net_t       s_nets[MAX_CONTACTS];
 
 static uint32_t now_ms(void) { return (uint32_t)(esp_timer_get_time() / 1000); }
 static uint32_t clock_us(void) { return (uint32_t)esp_timer_get_time(); }
+static void yield_1ms(void) { vTaskDelay(1); }       // map_yield: the solver gives the core back every round
 
 // take the shared lock, but if it takes more than 2 s print who holds it (then keep waiting)
 static void lock_app(const char *who)
@@ -87,7 +88,10 @@ static void mapper_task(void *arg)
         map_snapshot(&s_map, &s_app);
         xSemaphoreGive(s_lock);
 
+        int64_t ts = esp_timer_get_time();
         map_solve(&s_map, 4);
+        int solve_ms = (int)((esp_timer_get_time() - ts) / 1000);
+        if (solve_ms > 1000) ESP_LOGI(TAG, "map solve %d ms (%d snapshots, %d networks)", solve_ms, s_map.T, s_map.n);
 
         lock_app("mapper");
         if (s_app.bearing_ms != last_brg) {
@@ -277,6 +281,9 @@ void app_main(void)
         }
     }
     radio_start(&s_app, s_lock);
+    /* the solver's restarts are seconds of maths. without a pause the idle task on core 0
+     * starved and the task watchdog rebooted the board after a minute or two (full map) */
+    map_yield = yield_1ms;
     xTaskCreatePinnedToCore(mapper_task, "mapper", 6144, NULL, 2, NULL, 0);
     // one core (C3): the screen never stops drawing, so it goes under the mapper or that one starves
     if (portNUM_PROCESSORS > 1) xTaskCreatePinnedToCore(ui_task, "ui", 8192, NULL, 5, NULL, 1);

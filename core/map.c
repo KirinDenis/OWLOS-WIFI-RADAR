@@ -283,12 +283,15 @@ static void recenter(map_t *m)
     for (int k = 0; k < m->n; k++) { m->ax[k] -= sx; m->ay[k] -= sy; }
 }
 
+void (*map_yield)(void);
+
 static void run(map_t *m, int iters, float mu)
 {
     for (int i = 0; i < iters; i++) {
         path_step(m, mu);
         for (int k = 0; k < m->n; k++) ap_step(m, k, mu);
         recenter(m);
+        if (map_yield) map_yield();          // let the rest of the core breathe, see map.h
     }
 }
 

@@ -66,6 +66,17 @@ jobs:
           name: fw-${{ matrix.disp }}
           path: out
 
+      # not for the site: the ELF turns a crash backtrace from a board flashed off the
+      # site into file and line (xtensa-esp32-elf-addr2line -pfiaC -e owlos-wifi-radar.elf ...).
+      # a locally built ELF doesn't match, the IDF patch version moves the addresses
+      - uses: actions/upload-artifact@v4
+        with:
+          name: elf-${{ matrix.disp }}
+          path: |
+            firmware/build_${{ matrix.disp }}/owlos-wifi-radar.elf
+            firmware/build_${{ matrix.disp }}/sdkconfig
+          retention-days: 90
+
   site:
     name: Flasher site
     needs: firmware

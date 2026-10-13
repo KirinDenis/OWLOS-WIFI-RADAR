@@ -46,6 +46,12 @@ void map_reset(map_t *m);
 void map_snapshot(map_t *m, const app_t *a);
 // about `iters` rounds of path step + AP steps
 void map_solve(map_t *m, int iters);
+
+/* called after every round of the solver. the restarts every 20 s are ~180 rounds, on a
+ * full map (160 snapshots, 16 networks) that is close to 10 s of pure maths. on the ESP32
+ * nothing of lower priority ran meanwhile, the idle task starved and the task watchdog
+ * rebooted the board. the firmware points this at vTaskDelay(1). NULL = no-op */
+extern void (*map_yield)(void);
 // after a 360 turn: match its bearings to the map, fixes left/right and up
 float map_align_turn(map_t *m, const app_t *a);   // agreement 0..1, negative = couldnt try
 // copy solution (published frame) into a->map for the screen

@@ -9,7 +9,7 @@
 <style>
   :root {
     --bg0: #03081a; --bg1: #0a1a36; --panel: #0b2142; --line: #1d4a78;
-    --prim: #5ce1ff; --focus: #eaf7ff; --dim: #8fb2d2; --ok: #7ee2a8; --warn: #ffb848;
+    --prim: #5ce1ff; --focus: #eaf7ff; --dim: #8fb2d2; --warn: #ffb848;
   }
   * { box-sizing: border-box; }
   html { background: var(--bg0); }
@@ -43,12 +43,6 @@
   .body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
   .card h3 { margin: 0; font-size: 18px; }
   .spec { color: var(--dim); font-size: 14px; }
-  .tag {
-    align-self: flex-start; font-size: 12px; font-weight: 600; letter-spacing: .5px;
-    padding: 2px 8px; border-radius: 999px; border: 1px solid;
-  }
-  .tag.ok { color: var(--ok); border-color: rgba(126, 226, 168, .5); }
-  .tag.new { color: var(--warn); border-color: rgba(255, 184, 72, .5); }
   .flash { margin-top: auto; padding-top: 6px; }
   .flash button {
     width: 100%; padding: 11px 14px; border: 1px solid var(--prim); border-radius: 8px; cursor: pointer;
@@ -87,7 +81,6 @@
       <div class="shot"><img src="shots/02-listening.png" alt="the radar on the 2.8 inch board" loading="lazy"></div>
       <div class="body">
         <h3>2.8" CYD</h3>
-        <span class="tag ok">RUNS ON HARDWARE</span>
         <div class="spec">"Cheap yellow display", ESP32, ILI9341 320x240, resistive touch. The one it was written on, 15-19 fps.</div>
         <esp-web-install-button class="flash" manifest="fw/ili9341/manifest.json">
           <button slot="activate">CONNECT &amp; FLASH</button>
@@ -101,7 +94,6 @@
       <div class="shot"><img src="shots/st7796/07-target.png" alt="the radar on the 3.5 inch board" loading="lazy"></div>
       <div class="body">
         <h3>3.5" CYD</h3>
-        <span class="tag ok">RUNS ON HARDWARE</span>
         <div class="spec">ESP32, ST7796 480x320, resistive touch on the screen's bus. Bigger radar, about 8 fps.</div>
         <esp-web-install-button class="flash" manifest="fw/st7796/manifest.json">
           <button slot="activate">CONNECT &amp; FLASH</button>
@@ -115,7 +107,6 @@
       <div class="shot"><img src="shots/gc9a01/07-target.png" alt="the radar on the round screen" loading="lazy"></div>
       <div class="body">
         <h3>1.28" round</h3>
-        <span class="tag ok">RUNS ON HARDWARE</span>
         <div class="spec">Elecrow CrowPanel, ESP32-C3, GC9A01 240x240, capacitive touch. Its own round views: swipe for the next screen, tap the top of the glass to go back.</div>
         <esp-web-install-button class="flash" manifest="fw/gc9a01/manifest.json">
           <button slot="activate">CONNECT &amp; FLASH</button>
@@ -129,7 +120,6 @@
       <div class="shot"><img src="shots/epd792/07-target.png" alt="the radar on the wide e-paper" loading="lazy"></div>
       <div class="body">
         <h3>5.79" e-paper</h3>
-        <span class="tag ok">RUNS ON HARDWARE</span>
         <div class="spec">Elecrow CrowPanel, ESP32-S3, 792x272 in 4 greys. A dashboard to read from across the room, changes drawn on top without flashing. MENU = next screen, BACK = next network.</div>
         <esp-web-install-button class="flash" manifest="fw/epd792/manifest.json">
           <button slot="activate">CONNECT &amp; FLASH</button>
@@ -143,7 +133,6 @@
       <div class="shot"><img src="shots/epd400/07-target.png" alt="the radar on the 4.2 inch e-paper" loading="lazy"></div>
       <div class="body">
         <h3>4.2" e-paper</h3>
-        <span class="tag new">BUILDS, NOT TRIED ON HARDWARE YET</span>
         <div class="spec">Elecrow CrowPanel, ESP32-S3, 400x300 in 4 greys. Same as the 5.79" in one column. Pins and panel sequences are the ones ViewOwl runs on it.</div>
         <esp-web-install-button class="flash" manifest="fw/epd400/manifest.json">
           <button slot="activate">CONNECT &amp; FLASH</button>
@@ -157,7 +146,6 @@
       <div class="shot"><img src="shots/st7796/02-listening.png" alt="the radar at 480x320" loading="lazy"></div>
       <div class="body">
         <h3>3.5" RPi LCD (ILI9486)</h3>
-        <span class="tag new">BUILDS, NOT TRIED ON HARDWARE YET</span>
         <div class="spec">Waveshare RPi LCD (A) on the OWLOSAirQuality board, ESP32, 480x320, no touch: BOOT picks the next network, hold it for the 360 turn.</div>
         <esp-web-install-button class="flash" manifest="fw/ili9486/manifest.json">
           <button slot="activate">CONNECT &amp; FLASH</button>
