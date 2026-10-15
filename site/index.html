@@ -102,6 +102,21 @@
     </article>
 
     <article class="card">
+      <div class="shot"><img src="shots/07-target.png" alt="the radar on the 2.8 inch board with two USB ports" loading="lazy"></div>
+      <div class="body">
+        <h3>2.8" CYD, two USB ports</h3>
+        <div class="spec">The same board with micro USB and USB-C side by side has an ST7789 screen instead.
+          If the build above shows noise or a picture in one corner, this is the one. Colours look negative?
+          Press BOOT in the first seconds after power on, it's remembered.</div>
+        <esp-web-install-button class="flash" manifest="fw/st7789/manifest.json">
+          <button slot="activate">CONNECT &amp; FLASH</button>
+          <span slot="unsupported" class="nope">This browser can't flash. Use Chrome or Edge on a computer.</span>
+          <span slot="not-allowed" class="nope">Flashing needs the page over https.</span>
+        </esp-web-install-button>
+      </div>
+    </article>
+
+    <article class="card">
       <div class="shot"><img src="shots/st7796/07-target.png" alt="the radar on the 3.5 inch board" loading="lazy"></div>
       <div class="body">
         <h3>3.5" CYD</h3>

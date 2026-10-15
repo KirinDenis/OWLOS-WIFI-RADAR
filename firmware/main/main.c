@@ -151,6 +151,15 @@ static void ui_task(void *arg)
     esp_task_wdt_add(NULL);
     tp_init();
     ui_set_theme(&s_ui, settings_load_theme());
+#if LCD_CHIP_ST7789
+    /* ST7789 CYDs differ: some panels want the colours inverted, some don't. the saved choice,
+     * and for the first seconds after power on BOOT flips it (the screen says so) */
+    int invert = settings_load_invert(LCD_INVERT_DEFAULT);
+    disp_invert(invert);
+    snprintf(s_ui.toast, sizeof s_ui.toast, "COLOURS NEGATIVE? PRESS BOOT");
+    s_ui.toast_until = now_ms() + 8000u;
+    ESP_LOGI(TAG, "ST7789, colour inversion %s", invert ? "on" : "off");
+#endif
 #if RADAR_TOUCH_CAL
     /* no saved alignment or a crazy one -> align again. the scale has to be near
      * screen px / raw units (320 px over ~3700 raw on the CYD is ~0.09), a third or three
@@ -179,6 +188,18 @@ static void ui_task(void *arg)
         int input = 0;
 
         int ev = button_poll(now);
+#if LCD_CHIP_ST7789
+        if (ev && now < 8000u) {                      // first seconds after power on: BOOT flips the colours
+            invert ^= 1;
+            disp_invert(invert);
+            settings_save_invert(invert);
+            snprintf(s_ui.toast, sizeof s_ui.toast, invert ? "COLOUR INVERSION ON" : "COLOUR INVERSION OFF");
+            s_ui.toast_until = now + 3000u;
+            ESP_LOGI(TAG, "BOOT: colour inversion %s, saved", invert ? "on" : "off");
+            ev = 0;
+            input = 1;
+        }
+#endif
         if (ev) { ui_button(&s_ui, ev == BTN_LONG ? 2 : 1, &cmd); input = 1; }
         int key = keys_poll(now);
         if (key) { ui_key(&s_ui, key, &cmd); input = 1; }

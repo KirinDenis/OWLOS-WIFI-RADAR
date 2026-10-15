@@ -106,6 +106,20 @@ static const init_cmd_t INIT[] = {
 };
 #define CHIP "ST7796"
 
+#elif LCD_CHIP_ST7789
+/* the chip's own power-on settings and nothing else, the way Espressif's esp_lcd ST7789 driver
+ * does it: the module maker tunes voltages and gamma into the chip. inversion is set after the
+ * table, from NVS (main.c, disp_invert) */
+static const init_cmd_t INIT[] = {
+    { 0x01, 0, { 0 }, 150 },                                  /* software reset (no RST pin) */
+    { 0x11, 0, { 0 }, 120 },                                  /* sleep out */
+    { 0x3A, 1, { 0x55 }, 10 },                               /* 16 bits a pixel */
+    { 0x36, 1, { LCD_MADCTL }, 0 },
+    { 0x13, 0, { 0 }, 10 },                                  /* normal display mode */
+    { 0x29, 0, { 0 }, 20 },                                  /* display on */
+};
+#define CHIP "ST7789"
+
 #elif LCD_CHIP_GC9A01
 static const init_cmd_t INIT[] = {
     { 0xEF, 0, { 0 }, 0 },
@@ -192,6 +206,14 @@ void disp_backlight(int percent)
     if (percent > 100) percent = 100;
     ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, (uint32_t)(1023 * percent / 100));
     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+}
+
+// colour inversion on or off. between frames: the strip still in flight is waited for first
+void disp_invert(int on)
+{
+    if (xSemaphoreTake(s_done, pdMS_TO_TICKS(200)) != pdTRUE) s_lost++;
+    cmd(on ? 0x21 : 0x20, NULL, 0);
+    xSemaphoreGive(s_done);
 }
 
 void disp_init(void)

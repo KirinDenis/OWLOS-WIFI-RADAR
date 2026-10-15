@@ -16,6 +16,7 @@ for dir in "$FW"/*/; do
     gc9a01)  name='1.28" round (GC9A01 240x240)';                 family='ESP32-C3' ;;
     epd400)  name='4.2" e-paper (SSD1683 400x300)';               family='ESP32-S3' ;;
     epd792)  name='5.79" e-paper (2x SSD1683 792x272)';           family='ESP32-S3' ;;
+    st7789)  name='2.8" CYD with two USB ports (ST7789 320x240)'; family='ESP32' ;;
     *) echo "skipping unknown folder $disp"; continue ;;
   esac
   parts=""

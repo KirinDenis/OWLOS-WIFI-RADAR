@@ -37,6 +37,7 @@ jobs:
           - { disp: gc9a01,  num: 4, target: esp32c3 }
           - { disp: epd400,  num: 5, target: esp32s3 }
           - { disp: epd792,  num: 6, target: esp32s3 }
+          - { disp: st7789,  num: 7, target: esp32 }
     steps:
       - uses: actions/checkout@v4
 

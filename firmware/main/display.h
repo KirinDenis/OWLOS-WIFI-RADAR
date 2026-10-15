@@ -18,3 +18,5 @@ uint32_t disp_frame_ms(void);
 void     disp_full_next(void);
 // strips that never got the done callback (LCD), refreshes that timed out (e-paper)
 uint32_t disp_lost(void);
+// SPI LCDs only (lcd_spi.c): colour inversion on/off. the ST7789 CYD needs it switchable
+void     disp_invert(int on);

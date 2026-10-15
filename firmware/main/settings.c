@@ -40,3 +40,23 @@ void settings_save_theme(int theme)
     nvs_commit(h);
     nvs_close(h);
 }
+
+// colour inversion of the ST7789 CYD: 1 on, 0 off, dflt if nothing is saved
+int settings_load_invert(int dflt)
+{
+    nvs_handle_t h;
+    uint8_t v = (uint8_t)dflt;
+    if (nvs_open(NS, NVS_READONLY, &h) != ESP_OK) return dflt;
+    nvs_get_u8(h, "invert", &v);
+    nvs_close(h);
+    return v;
+}
+
+void settings_save_invert(int on)
+{
+    nvs_handle_t h;
+    if (nvs_open(NS, NVS_READWRITE, &h) != ESP_OK) return;
+    nvs_set_u8(h, "invert", (uint8_t)(on ? 1 : 0));
+    nvs_commit(h);
+    nvs_close(h);
+}
