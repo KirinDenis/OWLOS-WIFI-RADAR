@@ -2,7 +2,7 @@
 
 [![OWLOS WiFi Radar on the board, watch the video on YouTube](https://img.youtube.com/vi/IzlB0mkgRR4/maxresdefault.jpg)](https://www.youtube.com/watch?v=IzlB0mkgRR4)
 
-**▶ [Watch it in action on YouTube](https://www.youtube.com/watch?v=IzlB0mkgRR4)** - the colour themes, the 360 turn, the spectrum and the walk map, on the real board.
+**[Watch it in action on YouTube](https://www.youtube.com/watch?v=IzlB0mkgRR4)** - the colour themes, the 360 turn, the spectrum and the walk map, on the real board.
 
 Passive WiFi radar for ESP32 boards with a screen. It listens on 2.4 GHz and draws every network around as a blip on old school radar screen - name, signal, and direction when it can figure it out.
 
