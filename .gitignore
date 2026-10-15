@@ -7,5 +7,7 @@ firmware/dependencies.lock
 tools/preview/build/
 tools/FontBake/bin/
 tools/FontBake/obj/
+tools/QrBake/bin/
+tools/QrBake/obj/
 .vs/
 .vscode/

@@ -25,6 +25,11 @@
     color: var(--prim); text-shadow: 0 0 18px rgba(92, 225, 255, .35);
   }
   header p { margin: 8px 0 0; color: var(--dim); max-width: 760px; }
+  .video {
+    margin: 24px 0 0; max-width: 860px; aspect-ratio: 16 / 9; border: 1px solid var(--line); border-radius: 12px;
+    overflow: hidden; background: #020611; box-shadow: 0 0 28px rgba(92, 225, 255, .14);
+  }
+  .video iframe { width: 100%; height: 100%; border: 0; display: block; }
   .how {
     margin: 26px 0 30px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 10px;
     background: rgba(11, 33, 66, .55);
@@ -62,6 +67,12 @@
     <p>A passive 2.4 GHz WiFi radar for ESP32 boards with a screen. It only listens, never transmits,
        and draws every network around as a blip with its name and signal. Walk around the flat and it
        works out where the routers are. Pick your board below and flash it straight from the browser.</p>
+    <!-- youtube-nocookie: no YouTube cookies until somebody presses play -->
+    <div class="video">
+      <iframe src="https://www.youtube-nocookie.com/embed/IzlB0mkgRR4" title="OWLOS WiFi Radar on the board" loading="lazy"
+              allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
   </header>
 
   <section class="how">
