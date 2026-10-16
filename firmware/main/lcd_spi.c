@@ -83,6 +83,47 @@ static const init_cmd_t INIT[] = {
 };
 #define CHIP "ILI9341"
 
+#if LCD_PROFILES
+/* the other two CYD revisions (board.h). values from rzeldent/platformio-espressif32-sunton,
+ * the orientation turned into our landscape. a software reset first, so one can follow another */
+static const init_cmd_t INIT_V2[] = {                         /* USB-C: ILI9341, its own power and gamma */
+    { 0x01, 0, { 0 }, 120 },
+    { 0xCF, 3, { 0x00, 0xC1, 0x30 }, 0 },
+    { 0xED, 4, { 0x64, 0x03, 0x12, 0x81 }, 0 },
+    { 0xE8, 3, { 0x85, 0x00, 0x78 }, 0 },
+    { 0xCB, 5, { 0x39, 0x2C, 0x00, 0x34, 0x02 }, 0 },
+    { 0xF7, 1, { 0x20 }, 0 },
+    { 0xEA, 2, { 0x00, 0x00 }, 0 },
+    { 0xC0, 1, { 0x10 }, 0 },
+    { 0xC1, 1, { 0x00 }, 0 },
+    { 0xC5, 2, { 0x30, 0x30 }, 0 },
+    { 0xC7, 1, { 0xB7 }, 0 },
+    { 0x3A, 1, { 0x55 }, 0 },
+    { 0x36, 1, { LCD_MADCTL }, 0 },                          /* same way round as v1 */
+    { 0xB1, 2, { 0x00, 0x1A }, 0 },
+    { 0xB6, 3, { 0x08, 0x82, 0x27 }, 0 },
+    { 0xF2, 1, { 0x00 }, 0 },
+    { 0x26, 1, { 0x01 }, 0 },
+    { 0xE0, 15, { 0x0F, 0x2A, 0x28, 0x08, 0x0E, 0x08, 0x54, 0xA9, 0x43, 0x0A, 0x0F, 0x00, 0x00, 0x00, 0x00 }, 0 },
+    { 0xE1, 15, { 0x00, 0x15, 0x17, 0x07, 0x11, 0x06, 0x2B, 0x56, 0x3C, 0x05, 0x10, 0x0F, 0x3F, 0x3F, 0x0F }, 0 },
+    { 0x21, 0, { 0 }, 0 },                                   /* inversion on: this panel needs it */
+    { 0x11, 0, { 0 }, 120 },
+    { 0x29, 0, { 0 }, 20 },
+};
+/* v3: an ST7789 on the chip's own settings (like Espressif's esp_lcd driver). against v1 it is RGB
+ * not BGR and mirrored on one axis, so MADCTL loses BGR and MX: 0xE8 -> 0xA0. with the v1 start-up
+ * a viewer's v3 showed light blue on white and upside down, which is exactly those three */
+static const init_cmd_t INIT_V3[] = {
+    { 0x01, 0, { 0 }, 150 },                                  /* software reset */
+    { 0x11, 0, { 0 }, 120 },                                  /* sleep out */
+    { 0x3A, 1, { 0x55 }, 10 },                               /* 16 bits a pixel */
+    { 0x36, 1, { 0xA0 }, 0 },                                /* MY|MV, RGB */
+    { 0x21, 0, { 0 }, 0 },                                   /* inversion on */
+    { 0x13, 0, { 0 }, 10 },                                  /* normal display mode */
+    { 0x29, 0, { 0 }, 20 },
+};
+#endif
+
 #elif LCD_CHIP_ST7796
 static const init_cmd_t INIT[] = {
     { 0x01, 0, { 0 }, 120 },                                  /* software reset (no RST pin) */
@@ -105,20 +146,6 @@ static const init_cmd_t INIT[] = {
     { 0x29, 0, { 0 }, 20 },
 };
 #define CHIP "ST7796"
-
-#elif LCD_CHIP_ST7789
-/* the chip's own power-on settings and nothing else, the way Espressif's esp_lcd ST7789 driver
- * does it: the module maker tunes voltages and gamma into the chip. inversion is set after the
- * table, from NVS (main.c, disp_invert) */
-static const init_cmd_t INIT[] = {
-    { 0x01, 0, { 0 }, 150 },                                  /* software reset (no RST pin) */
-    { 0x11, 0, { 0 }, 120 },                                  /* sleep out */
-    { 0x3A, 1, { 0x55 }, 10 },                               /* 16 bits a pixel */
-    { 0x36, 1, { LCD_MADCTL }, 0 },
-    { 0x13, 0, { 0 }, 10 },                                  /* normal display mode */
-    { 0x29, 0, { 0 }, 20 },                                  /* display on */
-};
-#define CHIP "ST7789"
 
 #elif LCD_CHIP_GC9A01
 static const init_cmd_t INIT[] = {
@@ -208,12 +235,43 @@ void disp_backlight(int percent)
     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 }
 
-// colour inversion on or off. between frames: the strip still in flight is waited for first
-void disp_invert(int on)
+/* screen profiles: one start-up for most boards, three for the CYD revisions (board.h) */
+typedef struct { const char *name; const init_cmd_t *cmds; size_t n; } profile_t;
+#define PROFILE(name, t) { name, t, sizeof t / sizeof t[0] }
+static const profile_t PROFILE_LIST[] = {
+#if LCD_PROFILES
+    PROFILE("ILI9341 V1", INIT),
+    PROFILE("ILI9341 V2", INIT_V2),
+    PROFILE("ST7789 V3", INIT_V3),
+#else
+    PROFILE(CHIP, INIT),
+#endif
+};
+#define NPROFILES ((int)(sizeof PROFILE_LIST / sizeof PROFILE_LIST[0]))
+static int s_profile, s_ready;
+
+static void run_profile(void)
 {
+    const profile_t *p = &PROFILE_LIST[s_profile];
+    for (size_t i = 0; i < p->n; i++) {
+        cmd(p->cmds[i].cmd, p->cmds[i].len ? p->cmds[i].data : NULL, p->cmds[i].len);
+        if (p->cmds[i].wait_ms) vTaskDelay(pdMS_TO_TICKS(p->cmds[i].wait_ms));
+    }
+}
+
+int disp_profiles(void) { return NPROFILES; }
+const char *disp_profile_name(void) { return PROFILE_LIST[s_profile].name; }
+
+/* before disp_init: just remember it. after: start the screen again with it, between frames
+ * (the strip still in flight is waited for first) */
+void disp_profile(int p)
+{
+    s_profile = p >= 0 && p < NPROFILES ? p : 0;
+    if (!s_ready) return;
     if (xSemaphoreTake(s_done, pdMS_TO_TICKS(200)) != pdTRUE) s_lost++;
-    cmd(on ? 0x21 : 0x20, NULL, 0);
+    run_profile();
     xSemaphoreGive(s_done);
+    ESP_LOGI(TAG, "screen started as %s", PROFILE_LIST[s_profile].name);
 }
 
 void disp_init(void)
@@ -271,11 +329,10 @@ void disp_init(void)
         if (!s_buf[k]) ESP_LOGE(TAG, "no DMA memory for strip %d", k);
     }
 
-    for (size_t i = 0; i < sizeof INIT / sizeof INIT[0]; i++) {
-        cmd(INIT[i].cmd, INIT[i].len ? INIT[i].data : NULL, INIT[i].len);
-        if (INIT[i].wait_ms) vTaskDelay(pdMS_TO_TICKS(INIT[i].wait_ms));
-    }
-    ESP_LOGI(TAG, CHIP " %dx%d, SPI %d MHz, %d-row strips", GFX_W, GFX_H, LCD_SPI_HZ / 1000000, DISP_STRIP);
+    run_profile();
+    s_ready = 1;
+    ESP_LOGI(TAG, "%s %dx%d, SPI %d MHz, %d-row strips", PROFILE_LIST[s_profile].name, GFX_W, GFX_H,
+             LCD_SPI_HZ / 1000000, DISP_STRIP);
 }
 
 void disp_strip(const canvas_t *cv)

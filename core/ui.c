@@ -29,6 +29,7 @@ const theme_t UI_THEME[UI_THEMES] = {
 };
 const theme_t *TH = &UI_THEME[0];
 uint32_t (*ui_clock_us)(void);
+const char *ui_screen_name;
 static uint32_t s_lap;          // for ui_lap() profiling
 
 // adds time since last lap to prof[layer]

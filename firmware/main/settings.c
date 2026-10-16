@@ -41,22 +41,22 @@ void settings_save_theme(int theme)
     nvs_close(h);
 }
 
-// colour inversion of the ST7789 CYD: 1 on, 0 off, dflt if nothing is saved
-int settings_load_invert(int dflt)
+// which screen start-up the board took (display.h disp_profile). 0 if never picked
+int settings_load_screen(void)
 {
     nvs_handle_t h;
-    uint8_t v = (uint8_t)dflt;
-    if (nvs_open(NS, NVS_READONLY, &h) != ESP_OK) return dflt;
-    nvs_get_u8(h, "invert", &v);
+    uint8_t v = 0;
+    if (nvs_open(NS, NVS_READONLY, &h) != ESP_OK) return 0;
+    nvs_get_u8(h, "screen", &v);
     nvs_close(h);
     return v;
 }
 
-void settings_save_invert(int on)
+void settings_save_screen(int profile)
 {
     nvs_handle_t h;
     if (nvs_open(NS, NVS_READWRITE, &h) != ESP_OK) return;
-    nvs_set_u8(h, "invert", (uint8_t)(on ? 1 : 0));
+    nvs_set_u8(h, "screen", (uint8_t)profile);
     nvs_commit(h);
     nvs_close(h);
 }

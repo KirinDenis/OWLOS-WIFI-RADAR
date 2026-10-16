@@ -473,6 +473,16 @@ void view_cal(ui_t *u, canvas_t *cv)
     micro_text(cv, GFX_W / 2 - micro_width(t3, 1) / 2, ty + 29, t3, C_DIM, 235, 1);
     snprintf(buf, sizeof buf, "POINT %d OF %d", s + 1, CAL_POINTS);
     micro_text(cv, GFX_W / 2 - micro_width(buf, 1) / 2, ty + 44, buf, C_PRIM, 240, 1);
-    const char *t4 = "BOOT BUTTON: SKIP";
-    micro_text(cv, GFX_W / 2 - micro_width(t4, 1) / 2, ty + 58, t4, C_QUIET, 230, 1);
+    if (ui_screen_name) {
+        /* a board sold in revisions with different screens (the 2.8" CYD): this page is the first
+         * thing after flashing, the right place to say how to pick the other ones */
+        const char *t4 = "SCREEN WRONG? PRESS BOOT";
+        micro_text(cv, GFX_W / 2 - micro_width(t4, 1) / 2, ty + 58, t4, C_PRIM, 240, 1);
+        char t5[48];
+        snprintf(t5, sizeof t5, "NOW %s   HOLD BOOT: SKIP", ui_screen_name);
+        micro_text(cv, GFX_W / 2 - micro_width(t5, 1) / 2, ty + 67, t5, C_QUIET, 230, 1);
+    } else {
+        const char *t4 = "BOOT BUTTON: SKIP";
+        micro_text(cv, GFX_W / 2 - micro_width(t4, 1) / 2, ty + 58, t4, C_QUIET, 230, 1);
+    }
 }

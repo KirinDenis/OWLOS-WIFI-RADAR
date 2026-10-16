@@ -141,13 +141,13 @@ Walk map and the list of networks are saved to the ESP32 internal flash (own 512
 Pins for all of them are in `firmware/main/board.h`, the same wiring as in ViewOwl's firmware for each screen.
 
 - **ili9341** - the 2.8" CYD ("cheap yellow display", in shops as ESP32-2432S028R): classic ESP32, ILI9341 320x240 on SPI, XPT2046 touch on its own pins (CLK 25, MOSI 32, MISO 39, CS 33, IRQ 36). LCD: SCLK 14, MOSI 13, DC 2, CS 15, RST tied high, backlight 21. Runs 15-19 fps, ran 2 hours without a hiccup.
-- **st7789** - the same 2.8" CYD with two USB ports (micro USB and USB-C side by side, people call it CYD2USB). Same pins, same touch, but the screen is an ST7789: the ILI9341 build shows noise and a picture squeezed into a corner there, because the ILI9341 start-up writes registers that mean other things on the ST7789. This build starts it on the chip's own settings, like Espressif's esp_lcd driver does. Some of these panels want colour inversion and some don't: press BOOT in the first 8 seconds after power on to flip it, the choice is saved.
+  The same name is sold in three revisions with the same pins and different screens: v1 (micro USB) ILI9341, v2 (USB-C) an ILI9341 that wants other voltages and inverted colours, v3 an ST7789 that is also RGB instead of BGR and mirrored on one axis. On the wrong start-up a screen shows noise, negative colours or an upside-down picture. All three are in the one build, v1 first. The touch alignment page after flashing says how to change it: a short press of BOOT starts the screen as the next revision and the choice is saved; in the first 8 seconds after power on BOOT does the same. Values from [rzeldent/platformio-espressif32-sunton](https://github.com/rzeldent/platformio-espressif32-sunton).
 - **st7796** - the 3.5" CYD (in shops as ESP32-3248S035), ST7796 480x320. The touch is the XPT2046 sitting on the LCD's own SPI bus (CS 33), works fine. About 8 fps: bigger radar to draw, and with no PSRAM only 24 KB heap are left, so the strips are 12 rows.
 - **ili9486** - Waveshare RPi LCD (A) 3.5" on the OWLOSAirQuality board. That board talks to the panel thru shift registers, so every command byte is sent as 16 bits with its own CS pulse, 20 MHz max. No touch, BOOT button only.
 - **gc9a01** - Elecrow CrowPanel 1.28" round, ESP32-C3. Reset and backlight sit on an I2C expander. The touch chip isnt named anywhere I could find, CST816 at 0x15 was a guess and it answered (if nothing answers the radar goes on without touch). About 8 fps, the C3 has one core and no FPU, most of the frame goes to the blips.
 - **epd400 / epd792** - Elecrow CrowPanel e-paper 4.2" and 5.79", ESP32-S3, SSD1683 bit-banged. The 5.79" is two controllers in a cascade, a 4-grey refresh takes 3.3 s there. The two side keys are MENU (GPIO 2) and BACK (GPIO 1), the dial is on 6/4/5 (up/down/press), pins from Elecrow's example. The strips are only 8 rows here: 792 x 24 rows was a 76 KB buffer and after wifi there is no free block that big.
 
-The 2.8" CYD pins, the same on both versions as far as the reports go (the two-USB one has not been on my desk):
+The 2.8" CYD pins, the same on all three revisions (rzeldent's board files agree; only v1 has been on my desk):
 
 | What | GPIO |
 |---|---|
@@ -190,7 +190,7 @@ firmware\BUILD.BAT gc9a01          build for another screen
 firmware\BUILD.BAT epd400 COM9     same and flash it
 ```
 
-Screens: `ili9341`, `st7789`, `st7796`, `ili9486`, `gc9a01`, `epd400`, `epd792`. Each one gets its own build folder and sdkconfig, the C3 and S3 ones use a 2 MB partition table.
+Screens: `ili9341` (the 2.8" CYD, all revisions), `st7796`, `ili9486`, `gc9a01`, `epd400`, `epd792`. Each one gets its own build folder and sdkconfig, the C3 and S3 ones use a 2 MB partition table.
 
 The radio is passive only - it never transmits anything (no probe requests, no association), just listens to beacons and to the headers of data frames coming from access points. Payloads are not touched.
 

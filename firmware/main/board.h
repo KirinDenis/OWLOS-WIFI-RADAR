@@ -36,32 +36,14 @@
 #define PIN_T_IRQ     36
 #define PIN_BUTTON     0        // BOOT
 // TODO: board speaker for geiger like clicks while hunting
-
-#elif RADAR_DISPLAY == DISPLAY_ST7789_320x240
-/* the 2.8" CYD with two USB ports (micro USB + USB-C, "CYD2USB"): same board, same pins, but the
- * panel is an ST7789. the ILI9341 build left it noisy and drawn in a corner (a viewer's report,
- * 2026-10-15): the ILI9341 init writes power and interface registers that mean other things
- * on the ST7789. NOT run on hardware here, made from the reports of people who have one */
-#define DISP_LCD_SPI   1
-#define LCD_CHIP_ST7789 1
-#define PIN_LCD_SCLK  14
-#define PIN_LCD_MOSI  13
-#define PIN_LCD_MISO  (-1)
-#define PIN_LCD_DC     2
-#define PIN_LCD_CS    15
-#define PIN_LCD_RST   (-1)
-#define PIN_LCD_BL    21
-#define LCD_SPI_HZ    (40 * 1000 * 1000)
-#define LCD_MADCTL    0xE8      // the same landscape as the ILI9341 board, so the touch matches too
-#define LCD_INVERT_DEFAULT 1    // these panels need inversion on, the reports say. BOOT in the first seconds flips it
-#define DISP_STRIP    24
-#define TOUCH_XPT_BITBANG 1
-#define PIN_T_CLK     25
-#define PIN_T_MOSI    32
-#define PIN_T_MISO    39
-#define PIN_T_CS      33
-#define PIN_T_IRQ     36
-#define PIN_BUTTON     0
+/* the same name is sold in three revisions with the same pins and three different screens
+ * (rzeldent/platformio-espressif32-sunton, esp32-2432S028R / Rv2 / Rv3):
+ *   v1  micro USB      ILI9341, BGR, our MADCTL 0xE8, no inversion. the one this was written on
+ *   v2  USB-C          ILI9341 with its own power and gamma values, colour inversion on
+ *   v3  "7789"         ST7789, RGB, mirrored on one axis against v1, inversion on
+ * nobody knows which one he has, so all three are in this build (lcd_spi.c, LCD_PROFILES), v1
+ * first: it is what this firmware always did. BOOT picks another one, see main.c */
+#define LCD_PROFILES   3
 
 #elif RADAR_DISPLAY == DISPLAY_ST7796_480x320
 /* ESP32-3248S035 (3.5" ST7796), ViewOwl's 480x320 build. runs (2026-10-13): ~8 fps, 24 KB

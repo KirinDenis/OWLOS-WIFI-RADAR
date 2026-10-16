@@ -4,9 +4,9 @@ rem   BUILD.BAT                   build for the 320x240 CYD
 rem   BUILD.BAT COM4              build, flash to COM4, open serial monitor (opening the port resets the board)
 rem   BUILD.BAT st7796            build for another display
 rem   BUILD.BAT st7796 COM4       same, and flash it
-rem displays: ili9341 (2.8" CYD, the default)  st7796 (3.5" CYD)  ili9486 (RPi LCD on OWLOSAirQuality)
-rem           gc9a01 (round 1.28", ESP32-C3)  epd400 (4.2" e-paper, S3)  epd792 (5.79" e-paper, S3)
-rem           st7789 (2.8" CYD with two USB ports, its screen is an ST7789)
+rem displays: ili9341 (2.8" CYD, all three revisions, the default)  st7796 (3.5" CYD)
+rem           ili9486 (RPi LCD on OWLOSAirQuality)  gc9a01 (round 1.28", ESP32-C3)
+rem           epd400 (4.2" e-paper, S3)  epd792 (5.79" e-paper, S3)
 rem each display gets its own build folder and sdkconfig, so switching doesnt rebuild everything
 setlocal
 set DISP=%~1
@@ -23,9 +23,8 @@ if /i "%DISP%"=="ili9486" (set NUM=3& set TARGET=esp32)
 if /i "%DISP%"=="gc9a01"  (set NUM=4& set TARGET=esp32c3)
 if /i "%DISP%"=="epd400"  (set NUM=5& set TARGET=esp32s3)
 if /i "%DISP%"=="epd792"  (set NUM=6& set TARGET=esp32s3)
-if /i "%DISP%"=="st7789"  (set NUM=7& set TARGET=esp32)
 if "%NUM%"=="" (
-  echo unknown display %DISP%, pick one of: ili9341 st7796 ili9486 gc9a01 epd400 epd792 st7789
+  echo unknown display %DISP%, pick one of: ili9341 st7796 ili9486 gc9a01 epd400 epd792
   exit /b 1
 )
 rem the CYD keeps the plain build folder and sdkconfig it always had

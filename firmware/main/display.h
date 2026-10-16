@@ -18,5 +18,8 @@ uint32_t disp_frame_ms(void);
 void     disp_full_next(void);
 // strips that never got the done callback (LCD), refreshes that timed out (e-paper)
 uint32_t disp_lost(void);
-// SPI LCDs only (lcd_spi.c): colour inversion on/off. the ST7789 CYD needs it switchable
-void     disp_invert(int on);
+/* SPI LCDs only (lcd_spi.c): screen start-up profiles. one on most boards, the 2.8" CYD has
+ * three (board.h LCD_PROFILES). disp_profile before disp_init picks, after it restarts the screen */
+int         disp_profiles(void);
+void        disp_profile(int p);
+const char *disp_profile_name(void);

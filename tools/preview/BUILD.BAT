@@ -1,7 +1,7 @@
 @echo off
 rem build the PC preview of the radar screen with MSVC and run it
 rem   BUILD.BAT [display] [seed]
-rem display: ili9341 (default, the 320x240 CYD), st7796, ili9486, gc9a01, epd400, epd792, st7789
+rem display: ili9341 (default, the 320x240 CYD), st7796, ili9486, gc9a01, epd400, epd792
 rem shots go to ..\..\shots, other displays to ..\..\shots\<display>
 rem core\ sources are the same as in firmware
 setlocal
@@ -14,9 +14,8 @@ if /i "%DISP%"=="ili9486" set NUM=3
 if /i "%DISP%"=="gc9a01" set NUM=4
 if /i "%DISP%"=="epd400" set NUM=5
 if /i "%DISP%"=="epd792" set NUM=6
-if /i "%DISP%"=="st7789" set NUM=7
 if "%NUM%"=="" (
-  echo unknown display %DISP%, pick one of: ili9341 st7796 ili9486 gc9a01 epd400 epd792 st7789
+  echo unknown display %DISP%, pick one of: ili9341 st7796 ili9486 gc9a01 epd400 epd792
   exit /b 1
 )
 set OUT=..\..\shots

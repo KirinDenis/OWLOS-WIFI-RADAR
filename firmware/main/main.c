@@ -138,6 +138,10 @@ static void touch_sample(int force)
 static void ui_task(void *arg)
 {
     (void)arg;
+#if LCD_PROFILES
+    int screen = settings_load_screen();              // which CYD revision the screen turned out to be
+    disp_profile(screen);
+#endif
     disp_init();                                      // init here so the SPI interrupt is on this core, away from wifi
     uint32_t *work = heap_caps_malloc(GFX_W * DISP_STRIP * sizeof(uint32_t), MALLOC_CAP_INTERNAL);
     if (!work || !ui_init(&s_ui, now_ms())) {
@@ -151,14 +155,8 @@ static void ui_task(void *arg)
     esp_task_wdt_add(NULL);
     tp_init();
     ui_set_theme(&s_ui, settings_load_theme());
-#if LCD_CHIP_ST7789
-    /* ST7789 CYDs differ: some panels want the colours inverted, some don't. the saved choice,
-     * and for the first seconds after power on BOOT flips it (the screen says so) */
-    int invert = settings_load_invert(LCD_INVERT_DEFAULT);
-    disp_invert(invert);
-    snprintf(s_ui.toast, sizeof s_ui.toast, "COLOURS NEGATIVE? PRESS BOOT");
-    s_ui.toast_until = now_ms() + 8000u;
-    ESP_LOGI(TAG, "ST7789, colour inversion %s", invert ? "on" : "off");
+#if LCD_PROFILES
+    ui_screen_name = disp_profile_name();              // the touch alignment page offers the others
 #endif
 #if RADAR_TOUCH_CAL
     /* no saved alignment or a crazy one -> align again. the scale has to be near
@@ -188,14 +186,18 @@ static void ui_task(void *arg)
         int input = 0;
 
         int ev = button_poll(now);
-#if LCD_CHIP_ST7789
-        if (ev && now < 8000u) {                      // first seconds after power on: BOOT flips the colours
-            invert ^= 1;
-            disp_invert(invert);
-            settings_save_invert(invert);
-            snprintf(s_ui.toast, sizeof s_ui.toast, invert ? "COLOUR INVERSION ON" : "COLOUR INVERSION OFF");
+#if LCD_PROFILES
+        /* a short BOOT press starts the screen as the next CYD revision: on the touch alignment
+         * page (the first thing after flashing, it says so there) or in the first 8 s after power
+         * on. held on the alignment page it still skips the alignment */
+        if (ev == BTN_SHORT && (s_ui.view == VIEW_CAL || now < 8000u)) {
+            screen = (screen + 1) % disp_profiles();
+            disp_profile(screen);
+            settings_save_screen(screen);
+            ui_screen_name = disp_profile_name();
+            snprintf(s_ui.toast, sizeof s_ui.toast, "SCREEN %s", ui_screen_name);
             s_ui.toast_until = now + 3000u;
-            ESP_LOGI(TAG, "BOOT: colour inversion %s, saved", invert ? "on" : "off");
+            ESP_LOGI(TAG, "BOOT: screen is now %s, saved", ui_screen_name);
             ev = 0;
             input = 1;
         }

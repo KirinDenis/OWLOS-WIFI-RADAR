@@ -86,6 +86,10 @@ typedef struct {
  * 0 background, 1 radar disc, 2 decor, 3 panel or view, 4 toast, 5 radar rest */
 extern uint32_t (*ui_clock_us)(void);
 
+/* the firmware sets this on boards sold with several screens (the 2.8" CYD revisions): the name of
+ * the screen start-up in use. the touch alignment page then says BOOT picks another. NULL = one screen */
+extern const char *ui_screen_name;
+
 int  ui_init(ui_t *u, uint32_t now);    // builds lookup tables, 0 = out of memory
 // copy radio state into u->snap before this
 void ui_frame(ui_t *u, uint32_t now);
