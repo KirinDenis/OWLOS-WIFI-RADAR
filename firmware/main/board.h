@@ -64,6 +64,13 @@
 #define PIN_T_CS      33
 #define PIN_T_IRQ     36
 #define PIN_BUTTON     0
+/* the C version (ESP32-3248S035C) has the same screen and a capacitive GT911 on I2C instead,
+ * SDA 33 SCL 32 (rzeldent/platformio-espressif32-sunton). touch.c asks for it first and gives
+ * the pins back when nobody answers: on the R version 33 is the XPT2046's chip select.
+ * NOT run on a C version here */
+#define TOUCH_GT911_TOO 1
+#define PIN_I2C_SDA   33
+#define PIN_I2C_SCL   32
 
 #elif RADAR_DISPLAY == DISPLAY_ILI9486_480x320
 /* Waveshare RPi LCD (A) 3.5" on the OWLOSAirQuality board, ViewOwl's ILI9486 build.

@@ -5,6 +5,7 @@
  *    panel invents taps. then 5 reads per axis, median.
  *  CST816 capacitive on I2C (round board). its axes may not match the screen, that's fine,
  *    the 5 cross alignment in ui.c sorts out swaps and mirrors for every kind
+ *  GT911 capacitive on I2C (3.5" CYD, C version), asked for before the XPT2046 of the R version
  * boards without touch get tp_read() that never presses
  */
 #include "touch.h"
@@ -12,6 +13,66 @@
 #include "esp_log.h"
 
 static const char *TAG = "touch";
+
+#if TOUCH_GT911_TOO
+/* GT911, capacitive, on the 3.5" CYD's C version (board.h). 16-bit register addresses, MSB
+ * first. its address is 0x5D or 0x14, picked by the INT level at power on: both are asked, and
+ * "911" at 0x8140 tells it is really one. it counts in screen pixels, portrait 320x480 */
+#include "i2c_bus.h"
+#include "esp_timer.h"
+
+static i2c_master_dev_handle_t s_gt;
+static int      s_gt_down, s_gt_x, s_gt_y;
+static int64_t  s_gt_seen;
+
+static int gt_reg(uint16_t reg, uint8_t *buf, int n)
+{
+    uint8_t r[2] = { (uint8_t)(reg >> 8), (uint8_t)reg };
+    return i2c_master_transmit_receive(s_gt, r, 2, buf, (size_t)n, 20) == ESP_OK;
+}
+
+static int gt_find(void)
+{
+    const uint8_t addr[2] = { 0x5D, 0x14 };
+    for (int i = 0; i < 2; i++) {
+        if (!i2c_probe(addr[i])) continue;
+        s_gt = i2c_dev(addr[i]);
+        uint8_t id[4] = { 0 };
+        if (gt_reg(0x8140, id, 4) && id[0] == '9' && id[1] == '1' && id[2] == '1') {
+            ESP_LOGI(TAG, "GT911 at 0x%02x", addr[i]);
+            return 1;
+        }
+        i2c_master_bus_rm_device(s_gt);              // something else answered, not ours
+        s_gt = NULL;
+    }
+    return 0;
+}
+
+/* status 0x814E: bit 7 = fresh data, low bits = how many fingers. after reading it wants a 0 back.
+ * while a finger is on it reports about every 10 ms, so a silence of 300 ms counts as lifted */
+static int gt_read(int *rx, int *ry)
+{
+    uint8_t st = 0;
+    int64_t now = esp_timer_get_time();
+    if (gt_reg(0x814E, &st, 1) && (st & 0x80)) {
+        uint8_t p[4];
+        if ((st & 0x0F) && gt_reg(0x8150, p, 4)) {
+            s_gt_x = p[0] | p[1] << 8;
+            s_gt_y = p[2] | p[3] << 8;
+            s_gt_down = 1;
+        } else {
+            s_gt_down = 0;
+        }
+        const uint8_t clr[3] = { 0x81, 0x4E, 0 };
+        i2c_master_transmit(s_gt, clr, 3, 20);
+        s_gt_seen = now;
+    } else if (s_gt_down && now - s_gt_seen > 300000) {
+        s_gt_down = 0;
+    }
+    if (s_gt_down) { *rx = s_gt_x; *ry = s_gt_y; }
+    return s_gt_down;
+}
+#endif
 
 #if TOUCH_XPT_BITBANG || TOUCH_XPT_SPI
 
@@ -69,6 +130,10 @@ static spi_device_handle_t s_dev;
 
 void tp_init(void)
 {
+#if TOUCH_GT911_TOO
+    if (gt_find()) return;
+    i2c_bus_free();                                  // nobody there: 33 is the XPT2046's chip select again
+#endif
     spi_device_interface_config_t dev = {
         .clock_speed_hz = 2 * 1000 * 1000,       // the XPT2046 wants it slow
         .mode = 0,
@@ -98,6 +163,9 @@ static int median5(int *v)
 
 int tp_read(int *rx, int *ry)
 {
+#if TOUCH_GT911_TOO
+    if (s_gt) return gt_read(rx, ry);
+#endif
     chip_select(1);
     int z1 = xfer(0xB1), z2 = xfer(0xC1);
     int z = z1 + 4095 - z2;
@@ -153,3 +221,11 @@ void tp_init(void) { ESP_LOGI(TAG, "this board has no touch"); }
 int tp_read(int *rx, int *ry) { (void)rx; (void)ry; return 0; }
 
 #endif
+
+int tp_raw_span(void)
+{
+#if TOUCH_GT911_TOO
+    if (s_gt) return 480;                            // the GT911 counts screen pixels
+#endif
+    return TOUCH_RAW_SPAN;
+}

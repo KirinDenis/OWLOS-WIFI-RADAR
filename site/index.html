@@ -93,7 +93,9 @@
       <div class="shot"><img src="shots/02-listening.png" alt="the radar on the 2.8 inch board" loading="lazy"></div>
       <div class="body">
         <h3>2.8" CYD</h3>
-        <div class="spec">"Cheap yellow display", ESP32, 320x240, resistive touch, every revision (ILI9341 or ST7789). The one it was written on, 15-19 fps.</div>
+        <div class="spec">"Cheap yellow display", ESP32, 320x240, resistive touch, 15-19 fps. Sold with different
+          screens (ILI9341 or ST7789), this one build fits them all: if the picture looks wrong after flashing,
+          press BOOT until it's right.</div>
         <esp-web-install-button class="flash" manifest="fw/ili9341/manifest.json">
           <button slot="activate">CONNECT &amp; FLASH</button>
           <span slot="unsupported" class="nope">This browser can't flash. Use Chrome or Edge on a computer.</span>
@@ -106,7 +108,7 @@
       <div class="shot"><img src="shots/st7796/07-target.png" alt="the radar on the 3.5 inch board" loading="lazy"></div>
       <div class="body">
         <h3>3.5" CYD</h3>
-        <div class="spec">ESP32, ST7796 480x320, resistive touch on the screen's bus. Bigger radar, about 8 fps.</div>
+        <div class="spec">ESP32, ST7796 480x320, resistive or capacitive touch (R and C versions). Bigger radar, about 8 fps.</div>
         <esp-web-install-button class="flash" manifest="fw/st7796/manifest.json">
           <button slot="activate">CONNECT &amp; FLASH</button>
           <span slot="unsupported" class="nope">This browser can't flash. Use Chrome or Edge on a computer.</span>

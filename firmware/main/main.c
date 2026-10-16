@@ -163,7 +163,7 @@ static void ui_task(void *arg)
      * screen px / raw units (320 px over ~3700 raw on the CYD is ~0.09), a third or three
      * times that is garbage (the old 3-point version once saved 0.7 from wobbly presses) */
     int have = settings_load_cal(&s_ui.cal);
-    const float want = (float)GFX_W / TOUCH_RAW_SPAN;
+    const float want = (float)GFX_W / (float)tp_raw_span();
     float sx = fabsf(s_ui.cal.a) + fabsf(s_ui.cal.b), sy = fabsf(s_ui.cal.d) + fabsf(s_ui.cal.e);
     if (!have || sx < want / 3 || sx > want * 3 || sy < want / 3 || sy > want * 3) {
         if (have) ESP_LOGW(TAG, "stored touch alignment is implausible: aligning again");
